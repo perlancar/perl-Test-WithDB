@@ -73,15 +73,35 @@ sub create_db {
     } elsif ($self->{_driver} eq 'SQLite') {
         # we don't need to do anything
     }
-
     push @{ $self->{_created_dbs}  }, $dbname;
 
     my $dsn = $cfg->{test_dsn};
     $dsn =~ s/%s/$dbname/
         or die "test_dsn in configuration file does not contain '%s': $dsn";
 
+    {
+        my $sql = $cfg->{init_sql_admin};
+        last unless $sql;
+        my $dbh = DBI->connect($dsn, $cfg->{admin_user}, $cfg->{admin_pass},
+                               {RaiseError=>1});
+        for my $st (ref($sql) eq 'ARRAY' ? @$sql : ($sql)) {
+            Test::More::note("Initializing database by admin: $st ...");
+            $log->debug     ("Initializing database by admin: $st ...");
+            $dbh->do($st);
+        }
+    }
+
     my $dbh = DBI->connect($dsn, $cfg->{test_user}, $cfg->{test_pass},
                            {RaiseError=>1});
+    {
+        my $sql = $cfg->{init_sql_test};
+        last unless $sql;
+        for my $st (ref($sql) eq 'ARRAY' ? @$sql : ($sql)) {
+            Test::More::note("Initializing database by test user: $st ...");
+            $log->debug     ("Initializing database by test user: $st ...");
+            $dbh->do($st);
+        }
+    }
     push @{ $self->{_dbhs} }, $dbh;
     $dbh;
 }
@@ -139,6 +159,12 @@ In your C<~/test-withdb.ini>:
  test_dsn ="dbi:Pg:dbname=%s;host=localhost"
  test_user="someuser"
  test_pass="somepass"
+
+ # optional: SQL statements to initialize DB by test user after created
+ init_sql_admin=CREATE EXTENSION citext
+
+ # optional: SQL statements to initialize DB by test user after created
+ init_sql_test=
 
 In your test file:
 
