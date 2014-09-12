@@ -69,15 +69,15 @@ sub create_db {
     Test::More::note("Creating test database '$dbname' ...");
     $log->debug     ("Creating test database '$dbname' ...");
     if ($self->{_driver} eq 'Pg') {
-        $self->{_admin_dbh}->do("CREATE DATABASE $dbname OWNER $cfg->{test_user}");
+        $self->{_admin_dbh}->do("CREATE DATABASE $dbname OWNER $cfg->{user_user}");
     } elsif ($self->{_driver} eq 'SQLite') {
         # we don't need to do anything
     }
     push @{ $self->{_created_dbs}  }, $dbname;
 
-    my $dsn = $cfg->{test_dsn};
+    my $dsn = $cfg->{user_dsn};
     $dsn =~ s/%s/$dbname/
-        or die "test_dsn in configuration file does not contain '%s': $dsn";
+        or die "user_dsn in configuration file does not contain '%s': $dsn";
 
     {
         my $sql = $cfg->{init_sql_admin};
@@ -91,7 +91,7 @@ sub create_db {
         }
     }
 
-    my $dbh = DBI->connect($dsn, $cfg->{test_user}, $cfg->{test_pass},
+    my $dbh = DBI->connect($dsn, $cfg->{user_user}, $cfg->{user_pass},
                            {RaiseError=>1});
     {
         my $sql = $cfg->{init_sql_test};
@@ -156,9 +156,9 @@ In your C<~/test-withdb.ini>:
  admin_user="postgres"
  admin_pass="adminpass"
 
- test_dsn ="dbi:Pg:dbname=%s;host=localhost"
- test_user="someuser"
- test_pass="somepass"
+ user_dsn ="dbi:Pg:dbname=%s;host=localhost"
+ user_user="someuser"
+ user_pass="somepass"
 
  # optional: SQL statements to initialize DB by test user after created
  init_sql_admin=CREATE EXTENSION citext
