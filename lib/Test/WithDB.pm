@@ -34,15 +34,19 @@ sub _read_config {
     require Config::IOD::Reader;
 
     my $self = shift;
-    $self->{_config} =
-        Config::IOD::Reader->new->read_file($self->{config_path});
+    my $path = $self->{config_path};
+    my $cfg = Config::IOD::Reader->new->read_file($path);
+    my $profile = $self->{config_profile} // 'GLOBAL';
+    die "Config profile '$profile' not found in config file '$path'"
+        unless $cfg->{$profile};
+    $self->{_config} = $cfg->{$profile};
 }
 
 sub _init {
     my $self = shift;
 
     $self->_read_config;
-    my $cfg = $self->{_config}{GLOBAL};
+    my $cfg = $self->{_config};
 
     my ($driver) = $cfg->{admin_dsn} =~ /^dbi:([^:]+)/;
     if ($driver !~ /^(Pg|SQLite)$/) {
@@ -63,7 +67,7 @@ sub create_db {
     $dbname = "testdb_".strftime("%Y%m%d_%H%M%S", localtime).
         "_$dbname"; # <= 64 chars
 
-    my $cfg = $self->{_config}{GLOBAL};
+    my $cfg = $self->{_config};
 
     # XXX allow specifying more options
     Test::More::note("Creating test database '$dbname' ...");
@@ -215,6 +219,10 @@ Currently only supports Postgres and SQLite.
 =head2 config_path => str (default: C<~/test-withdb.ini>).
 
 Path to configuration file. File will be read using L<Config::IOD::Reader>.
+
+=head2 config_profile => str (default: GLOBAL)
+
+Pick section in configuration file to use.
 
 
 =head1 METHODS
