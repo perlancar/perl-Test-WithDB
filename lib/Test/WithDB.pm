@@ -94,7 +94,7 @@ sub create_db {
     my $dbh = DBI->connect($dsn, $cfg->{user_user}, $cfg->{user_pass},
                            {RaiseError=>1});
     {
-        my $sql = $cfg->{init_sql_test};
+        my $sql = $cfg->{init_sql_user};
         last unless $sql;
         for my $st (ref($sql) eq 'ARRAY' ? @$sql : ($sql)) {
             Test::More::note("Initializing database by test user: $st ...");
