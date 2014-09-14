@@ -61,7 +61,7 @@ sub _init {
     my $cfg = $self->{_config};
 
     my ($driver) = $cfg->{admin_dsn} =~ /^dbi:([^:]+)/;
-    if ($driver !~ /^(Pg|SQLite)$/) {
+    if ($driver !~ /^(Pg|mysql|SQLite)$/) {
         die "Sorry, DBI driver '$driver' is not supported yet";
     }
 
@@ -85,15 +85,20 @@ sub create_db {
     Test::More::note("Creating test database '$dbname' ...");
     $log->debug     ("Creating test database '$dbname' ...");
     if ($self->{_driver} eq 'Pg') {
-        $self->{_admin_dbh}->do("CREATE DATABASE $dbname OWNER $cfg->{user_user}");
+        $self->{_admin_dbh}->do("CREATE DATABASE $dbname OWNER ".
+                                    "$cfg->{user_user}");
+    } elsif ($self->{_driver} eq 'mysql') {
+        $self->{_admin_dbh}->do("CREATE DATABASE $dbname");
+        $self->{_admin_dbh}->do("GRANT ALL ON $dbname.* TO ".
+                                    "'$cfg->{user_user}'\@'localhost'");
     } elsif ($self->{_driver} eq 'SQLite') {
         # we don't need to do anything
     }
     push @{ $self->{_created_dbs}  }, $dbname;
 
     my $dsn = $cfg->{user_dsn};
-    $dsn =~ s/%s/$dbname/
-        or die "user_dsn in configuration file does not contain '%s': $dsn";
+    $dsn =~ s/dbname=[^;]+//;
+    $dsn .= ";dbname=$dbname";
 
     {
         my $sql = $cfg->{init_sql_admin};
@@ -172,7 +177,7 @@ In your C<~/test-withdb.ini>:
  admin_user="postgres"
  admin_pass="adminpass"
 
- user_dsn ="dbi:Pg:dbname=%s;host=localhost"
+ user_dsn ="dbi:Pg;host=localhost"
  user_user="someuser"
  user_pass="somepass"
 
@@ -224,12 +229,13 @@ check:
 
 So when testing fails, you can inspect the database.
 
-Currently only supports Postgres and SQLite.
+Currently only supports Postgres, MySQL, and SQLite; and tested mostly with
+Postgres.
 
 
 =head1 ATTRIBUTES
 
-=head2 config_path => str (default: C<~/test-withdb.ini>).
+=head2 config_path => str (default: C<~/test-withdb.ini> or C<~/twdb.ini>).
 
 Path to configuration file. File will be read using L<Config::IOD::Reader>.
 
