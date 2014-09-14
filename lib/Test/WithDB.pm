@@ -18,6 +18,9 @@ sub new {
 
     my $self = bless \%attrs, $class;
 
+    $self->{config_path}    //= $ENV{TWDB_CONFIG_PATH};
+    $self->{config_profile} //= $ENV{TWDB_CONFIG_PROFILE};
+
     if (!$self->{config_path}) {
         # we're being tiny here, otherwise we'll use File::HomeDir
         my $home = $ENV{HOME} // $ENV{HOMEPATH}
@@ -239,6 +242,17 @@ Finish testing. Will drop all created databases unless tests are not passing.
 
 Called automatically during DESTROY (but because object destruction order are
 not guaranteed, it's best that you explicitly call C<done()> yourself).
+
+
+=head1 ENVIRONMENT
+
+=head2 TWDB_CONFIG_PATH => str
+
+Set default C<config_path>.
+
+=head2 TWDB_CONFIG_PROFILE => str
+
+Set default C<config_profile>.
 
 
 =head1 SEE ALSO
