@@ -168,7 +168,7 @@ In your C<~/test-withdb.ini>:
  init_sql_admin=CREATE EXTENSION citext
 
  # optional: SQL statements to initialize DB by test user after created
- init_sql_test=
+ init_sql_user=
 
 In your test file:
 
