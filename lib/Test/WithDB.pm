@@ -38,11 +38,17 @@ sub _read_config {
 
     my $self = shift;
     my $path = $self->{config_path};
-    my $cfg = Config::IOD::Reader->new->read_file($path);
+    my $cfg0 = Config::IOD::Reader->new->read_file($path);
     my $profile = $self->{config_profile} // 'GLOBAL';
+    my $cfg = $cfg0->{$profile};
     die "Config profile '$profile' not found in config file '$path'"
-        unless $cfg->{$profile};
-    $self->{_config} = $cfg->{$profile};
+        unless $cfg;
+    for (qw/admin_dsn admin_user admin_pass
+            user_dsn user_user user_pass/) {
+        die "Required config '$_' not defined in config file '$path'"
+            unless exists $cfg->{$_};
+    }
+    $self->{_config} = $cfg;
 }
 
 sub _init {
