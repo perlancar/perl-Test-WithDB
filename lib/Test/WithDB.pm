@@ -25,7 +25,10 @@ sub new {
         # we're being tiny here, otherwise we'll use File::HomeDir
         my $home = $ENV{HOME} // $ENV{HOMEPATH}
             or die "Can't determine home directory";
-        $self->{config_path} = "$home/test-withdb.ini";
+        for ("$home/test-withdb.ini", "$home/twdb.ini") {
+            $self->{config_path} = $_;
+            last if -f $_;
+        }
     }
 
     $self->{_created_dbs} = [];
