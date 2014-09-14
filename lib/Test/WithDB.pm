@@ -159,7 +159,7 @@ sub DESTROY {
 
 In your C<~/test-withdb.ini>:
 
- admin_dsn ="dbi:Pg:dbname=template1;host=localhost"
+ admin_dsn ="dbi:Pg;host=localhost"
  admin_user="postgres"
  admin_pass="adminpass"
 
@@ -193,15 +193,16 @@ In your test file:
 
 =head1 DESCRIPTION
 
-This class provides a simple framework for testing application that requires
-database. It is meant to work with L<Test::More> (or to be more exact, any
-L<Test::Builder>-based module).
+This class (C<Test::WithDB>, or TWDB for short) provides a simple framework for
+testing application that requires database. It is meant to work with
+L<Test::More> (or to be more exact, any L<Test::Builder>-based module). It
+offers an easy way to create random databases and initialize them so they are
+ready for testing. More functionalities will be added in the future.
 
-First, you supply a configuration file containing admin and normal
-user's connection information (the admin info is needed to create databases).
-
-Then, you call one or more C<create_db()> to create one or more databases for
-testing. The database will be created with random names.
+To work with TWDB, first, you supply a configuration file containing admin and
+normal user's connection information (the admin info is needed to create
+databases). Then, you call one or more C<create_db()> to create one or more
+databases for testing. The database will be created with random names.
 
 At the end of testing, when you call C<< $twdb->done >>, the class will do this
 check:
