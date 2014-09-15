@@ -20,6 +20,7 @@ sub new {
 
     $self->{config_path}    //= $ENV{TWDB_CONFIG_PATH};
     $self->{config_profile} //= $ENV{TWDB_CONFIG_PROFILE};
+    $self->{sqlite_db_dir}  //= ".";
 
     if (!$self->{config_path}) {
         # we're being tiny here, otherwise we'll use File::HomeDir
@@ -98,7 +99,11 @@ sub create_db {
 
     my $dsn = $cfg->{user_dsn};
     $dsn =~ s/dbname=[^;]+//;
-    $dsn .= ";dbname=$dbname";
+    if ($self->{_driver} eq 'SQLite') {
+        $dsn .= ";dbname=$self->{sqlite_db_dir}/$dbname";
+    } else {
+        $dsn .= ";dbname=$dbname";
+    }
 
     {
         my $sql = $cfg->{init_sql_admin};
@@ -242,6 +247,10 @@ Path to configuration file. File will be read using L<Config::IOD::Reader>.
 =head2 config_profile => str (default: GLOBAL)
 
 Pick section in configuration file to use.
+
+=head2 sqlite_db_dir => str (default: .)
+
+Only if you use SQLite. Where to put database files.
 
 
 =head1 METHODS
