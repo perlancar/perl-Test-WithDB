@@ -1,5 +1,22 @@
 Revision history for Test-WithDB
 
+0.03    2014-09-18 (PERLANCAR)
+
+        - Add config: sqlite_db_dir.
+
+        - Check ~/twdb.ini as well as ~/test-withdb.ini.
+
+        - Check required config vars.
+
+        - Observe env TWDB_CONFIG_PATH & TWDB_CONFIG_PROFILE.
+
+        - Add basic (author) tests for each db driver.
+
+        [Documentation]
+
+        - Document known config vars.
+
+
 0.02    2014-09-12 (PERLANCAR)
 
         - Add attribute: config_profile.
