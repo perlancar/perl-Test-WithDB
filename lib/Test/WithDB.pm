@@ -135,6 +135,7 @@ sub create_db {
 sub _drop_dbs {
     my $self = shift;
 
+    my $cfg = $self->{_config};
     my $dbs = $self->{_created_dbs};
 
     for (0..@$dbs-1) {
@@ -143,7 +144,13 @@ sub _drop_dbs {
         $dbh->disconnect;
         Test::More::note("Dropping test database '$dbname' ...");
         $log->debug     ("Dropping test database '$dbname' ...");
-        $self->{_admin_dbh}->do("DROP DATABASE $dbname");
+        if ($self->{_driver} eq 'SQLite') {
+            my $dir = $cfg->{sqlite_db_dir} // '.';
+            my $path = "$dir/$dbname";
+            unlink $path or die "Can't unlink file '$path': $!";
+        } else {
+            $self->{_admin_dbh}->do("DROP DATABASE $dbname");
+        }
     }
 }
 

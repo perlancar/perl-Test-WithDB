@@ -7,7 +7,7 @@ use warnings;
 use Test::More 0.98;
 use Test::WithDB;
 
-my $twdb = Test::WithDB->new(config_profile=>'twdb-test-mysql');
+my $twdb = Test::WithDB->new(config_profile=>'twdb-test-Pg');
 my $dbh = $twdb->create_db;
 ok($dbh);
 undef $twdb;
