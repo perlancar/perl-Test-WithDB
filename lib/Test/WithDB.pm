@@ -20,7 +20,6 @@ sub new {
 
     $self->{config_path}    //= $ENV{TWDB_CONFIG_PATH};
     $self->{config_profile} //= $ENV{TWDB_CONFIG_PROFILE};
-    $self->{sqlite_db_dir}  //= ".";
 
     if (!$self->{config_path}) {
         # we're being tiny here, otherwise we'll use File::HomeDir
@@ -100,7 +99,8 @@ sub create_db {
     my $dsn = $cfg->{user_dsn};
     $dsn =~ s/dbname=[^;]+//;
     if ($self->{_driver} eq 'SQLite') {
-        $dsn .= ";dbname=$self->{sqlite_db_dir}/$dbname";
+        my $dir = $cfg->{sqlite_db_dir} // '.';
+        $dsn .= ";dbname=$dir/$dbname";
     } else {
         $dsn .= ";dbname=$dbname";
     }
@@ -248,10 +248,6 @@ Path to configuration file. File will be read using L<Config::IOD::Reader>.
 
 Pick section in configuration file to use.
 
-=head2 sqlite_db_dir => str (default: .)
-
-Only if you use SQLite. Where to put database files.
-
 
 =head1 METHODS
 
@@ -267,6 +263,27 @@ Finish testing. Will drop all created databases unless tests are not passing.
 
 Called automatically during DESTROY (but because object destruction order are
 not guaranteed, it's best that you explicitly call C<done()> yourself).
+
+
+=head1 CONFIGURATION
+
+=head2 *admin_dsn => str
+
+=head2 *admin_user => str
+
+=head2 *admin_pass => str
+
+=head2 *user_dsn => str
+
+=head2 *user_user => str
+
+=head2 *user_pass => str
+
+=head2 init_sql_admin => str|array
+
+=head2 init_sql_user => str|array
+
+=head2 sqlite_db_dir => str (default: .)
 
 
 =head1 ENVIRONMENT
