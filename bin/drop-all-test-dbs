@@ -34,4 +34,4 @@ for (@dbs) {
 $twdb->done;
 
 # ABSTRACT: Drop all test databases
-# PODNAME: drop-all-test-dbs
+# PODNAME:
