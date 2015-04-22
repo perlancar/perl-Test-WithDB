@@ -1,5 +1,12 @@
 Revision history for Test-WithDB
 
+0.05    2015-04-22 (PERLANCAR)
+
+	- [Bugfix] Test::WithDB::SQLite: Remove extraneous 'dbname=...'
+	  parameter in DBI connection string which causes a garbage file
+	  'xxx' to be created.
+
+
 0.04    2015-04-22 (PERLANCAR)
 
 	- Add class: Test::WithDB::SQLite.
