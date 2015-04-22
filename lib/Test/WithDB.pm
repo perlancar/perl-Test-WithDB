@@ -97,7 +97,7 @@ sub create_db {
     push @{ $self->{_created_dbs}  }, $dbname;
 
     my $dsn = $cfg->{user_dsn};
-    $dsn =~ s/dbname=[^;]+//;
+    $dsn =~ s/dbname=[^;]*//;
     if ($self->{_driver} eq 'SQLite') {
         my $dir = $cfg->{sqlite_db_dir} // '.';
         $dsn .= ";dbname=$dir/$dbname";

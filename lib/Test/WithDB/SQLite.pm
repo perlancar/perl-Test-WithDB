@@ -23,11 +23,11 @@ sub _read_config {
     my $profile = $self->{config_profile} // 'GLOBAL';
     my $cfg = $cfg0->{$profile} // {};
 
-    $cfg->{admin_dsn}  //= 'dbi:SQLite:dbname=xxx';
+    $cfg->{admin_dsn}  //= 'dbi:SQLite:';
     $cfg->{admin_user} //= '';
     $cfg->{admin_pass} //= '';
 
-    $cfg->{user_dsn}  //= 'dbi:SQLite:dbname=xxx';
+    $cfg->{user_dsn}  //= 'dbi:SQLite:';
     $cfg->{user_user} //= '';
     $cfg->{user_pass} //= '';
 
