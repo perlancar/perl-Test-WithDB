@@ -1,5 +1,10 @@
 Revision history for Test-WithDB
 
+0.04    2015-04-22 (PERLANCAR)
+
+	- Add class: Test::WithDB::SQLite.
+
+
 0.03    2014-09-18 (PERLANCAR)
 
         - Add config: sqlite_db_dir.
