@@ -1,5 +1,12 @@
 Revision history for Test-WithDB
 
+0.06    2015-08-18 (PERLANCAR)
+
+	- No functional changes.
+
+	- Switch from Log::Any to Log::Any::IfLOG.
+
+
 0.05    2015-04-22 (PERLANCAR)
 
 	- [Bugfix] Test::WithDB::SQLite: Remove extraneous 'dbname=...'
