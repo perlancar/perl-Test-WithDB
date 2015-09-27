@@ -33,8 +33,10 @@ sub _read_config {
 
     $cfg->{sqlite_db_dir} //= do {
         require File::Temp;
-        File::Temp::tempdir(CLEANUP=>1);
+        File::Temp::tempdir(CLEANUP=>$ENV{TWDB_KEEP_TEMP_DBS} ? 0:1);
     };
+
+    Test::More::note("Will be creating test SQLite databases in '$cfg->{sqlite_db_dir}'");
 
     $self->{_config} = $cfg;
 }

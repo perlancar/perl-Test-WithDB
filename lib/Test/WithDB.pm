@@ -13,13 +13,18 @@ use POSIX qw(strftime);
 use Test::More 0.98 ();
 use UUID::Random;
 
-sub new {
-    my ($class, %attrs) = @_;
+use Mo qw(build default);
 
-    my $self = bless \%attrs, $class;
+has config_path    => (is => 'ro');
+has config_profile => (is => 'ro');
+has name_pattern   => (is => 'rw');
+
+sub BUILD {
+    my ($self, $args) = @_;
 
     $self->{config_path}    //= $ENV{TWDB_CONFIG_PATH};
     $self->{config_profile} //= $ENV{TWDB_CONFIG_PROFILE};
+    $self->{name_pattern}   //= $ENV{TWDB_NAME_PATTERN} // 'testdb_%Y%m%d_%H%M%S_%u';
 
     if (!$self->{config_path}) {
         # we're being tiny here, otherwise we'll use File::HomeDir
@@ -33,7 +38,6 @@ sub new {
 
     $self->{_created_dbs} = [];
     $self->_init;
-    $self;
 }
 
 sub _read_config {
@@ -71,14 +75,38 @@ sub _init {
     $self->{_driver} = $driver;
 }
 
+sub _new_name {
+    my $self = shift;
+
+    my $uuid = do {
+        local $_ = UUID::Random::generate();
+        s/-//g;
+        $_;
+    }; # 32 character hex
+
+    my $time = strftime("%Y%m%d%H%M%S", localtime);
+
+    my %patterns = (
+        '%' => '%',
+        'U' => $uuid,
+        'u' => substr($uuid,  0, 8),
+        'Y' => substr($time,  0, 4),
+        'm' => substr($time,  4, 2),
+        'd' => substr($time,  6, 2),
+        'H' => substr($time,  8, 2),
+        'M' => substr($time, 10, 2),
+        'S' => substr($time, 12, 2),
+    );
+
+    my $dbname = $self->{name_pattern};
+    $dbname =~ s!\%(.)!exists $patterns{$1} ? $patterns{$1} : "%$1"!eg;
+    $dbname;
+}
+
 sub create_db {
     my $self = shift;
 
-    my $dbname = UUID::Random::generate();
-    $dbname =~ s/-//g; $dbname = substr($dbname, 0, 8);
-    $dbname = "testdb_".strftime("%Y%m%d_%H%M%S", localtime).
-        "_$dbname"; # <= 64 chars
-
+    my $dbname = $self->_new_name;
     my $cfg = $self->{_config};
 
     # XXX allow specifying more options
@@ -132,7 +160,7 @@ sub create_db {
     $dbh;
 }
 
-sub _drop_dbs {
+sub drop_dbs {
     my $self = shift;
 
     my $cfg = $self->{_config};
@@ -163,17 +191,28 @@ sub done {
     my $self = shift;
     return if $self->{_done}++;
 
-    if (Test::More->builder->is_passing) {
-        $self->_drop_dbs;
+    my $passing = Test::More->builder->is_passing;
+
+    if ($passing && !$ENV{TWDB_KEEP_TEMP_DBS}) {
+        $self->drop_dbs;
     } else {
         my $dbs = $self->{_created_dbs};
         if (@$dbs) {
-            Test::More::diag(
-                "Tests failing, not removing databases created during testing ".
-                                 "(".join(", ", @$dbs).")");
-            $log->error(
-                "Tests failing, not removing databases created during testing ".
-                                 "(".join(", ", @$dbs).")");
+            if ($passing) {
+                Test::More::diag(
+                    "TWDB_KEEP_TEMP_DBS is set, not removing databases created during testing ".
+                        "(".join(", ", @$dbs).")");
+                $log->info(
+                    "TWDB_KEEP_TEMP_DBS is set, not removing databases created during testing ".
+                        "(".join(", ", @$dbs).")");
+            } else {
+                Test::More::diag(
+                    "Tests failing, not removing databases created during testing ".
+                        "(".join(", ", @$dbs).")");
+                $log->error(
+                    "Tests failing, not removing databases created during testing ".
+                        "(".join(", ", @$dbs).")");
+            }
         }
     }
 }
@@ -209,7 +248,11 @@ In your test file:
  use Test::More;
  use Test::WithDB;
 
- my $twdb = Test::WithDB->new;
+ my $twdb = Test::WithDB->new(
+     #config_path => '...', # defaults to TWDB_CONFIG_PATH env or ~/test-withdb.ini or ~/twdb.ini
+     #config_profile => '...', # defaults to TWDB_CONFIG_PROFILE env or undef
+     #name_pattern => '...', # defaults to TWDB_NAME_PATTERN env or 'testdb_%u'
+ );
 
  my $dbh = $twdb->create_db; # create db with random name
 
@@ -260,6 +303,57 @@ Path to configuration file. File will be read using L<Config::IOD::Reader>.
 
 Pick section in configuration file to use.
 
+=head2 name_pattern => str (default: C<testdb_%Y%m%d_%H%M%S_%u>)
+
+Pattern for random database name, where several sprintf-/strftime-style C<%X>
+directives are recognized:
+
+=over
+
+=item * C<%%>
+
+Literal percentage sign
+
+=item * C<%U>
+
+32-character random UUID hex. It is recommended that at least you add either
+this or C<%u>.
+
+=item * C<%u>
+
+8-character prefix of random UUID hex. It is recommended that at least you add
+either this or C<%u>. If you use C<%u> instead of C<%U>, it is recommended that
+you also add timestamp.
+
+=item * C<%Y>
+
+4-digit year of current time.
+
+=item * C<%m>
+
+2-digit month (01-12) of current time.
+
+=item * C<%d>
+
+2-digit day of month (01-31) of current time.
+
+=item * C<%H>
+
+2-digit hour (00-23) of current time.
+
+=item * C<%M>
+
+2-digit minute (00-59) of current time.
+
+=item * C<%S>
+
+2-digit second (00-60) of current time.
+
+=back
+
+You should make sure that the database name won't exceed the maximum length
+allowed by the database software (e.g. 64 character for some SQL databases).
+
 
 =head1 METHODS
 
@@ -267,7 +361,7 @@ Pick section in configuration file to use.
 
 =head2 $twdb->create_db
 
-Create a test database with random name.
+Create a test database with random name according to C<name_pattern>.
 
 =head2 $twdb->created_dbs => LIST
 
@@ -275,10 +369,18 @@ Return a list of temporary databases already created by this instance.
 
 =head2 $twdb->done
 
-Finish testing. Will drop all created databases unless tests are not passing.
+Finish testing. Will drop all created databases unless tests are not passing or
+C<TWDB_KEEP_TEMP_DBS> is set to true.
 
 Called automatically during DESTROY (but because object destruction order are
-not guaranteed, it's best that you explicitly call C<done()> yourself).
+not guaranteed, e.g. DBI database handle might get destroyed first preventing
+proper database deletion to work, it's best that you explicitly call C<done()>
+yourself).
+
+=head2 $twdb->drop_dbs
+
+Explicitly delete created temporary databases, regardless of whether tests are
+passing or C<TWDB_KEEP_TEMP_DBS> is set.
 
 
 =head1 CONFIGURATION
@@ -311,6 +413,14 @@ Set default C<config_path>.
 =head2 TWDB_CONFIG_PROFILE => str
 
 Set default C<config_profile>.
+
+=head2 TWDB_NAME_PATTERN => str
+
+Set default C<name_pattern>.
+
+=head2 TWDB_KEEP_TEMP_DBS => bool
+
+Can be set to true to keep C<done()> from automatically dropping databases.
 
 
 =head1 SEE ALSO
