@@ -425,6 +425,8 @@ Can be set to true to keep C<done()> from automatically dropping databases.
 
 =head1 SEE ALSO
 
+L<DBIx::TempDB>
+
 L<Test::More>, L<Test::Builder>
 
 =cut
