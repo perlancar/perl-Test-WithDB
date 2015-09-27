@@ -154,6 +154,11 @@ sub _drop_dbs {
     }
 }
 
+sub created_dbs {
+    my $self = shift;
+    @{ $self->{_created_dbs} };
+}
+
 sub done {
     my $self = shift;
     return if $self->{_done}++;
@@ -263,6 +268,10 @@ Pick section in configuration file to use.
 =head2 $twdb->create_db
 
 Create a test database with random name.
+
+=head2 $twdb->created_dbs => LIST
+
+Return a list of temporary databases already created by this instance.
 
 =head2 $twdb->done
 
