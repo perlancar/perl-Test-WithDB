@@ -1,5 +1,20 @@
 Revision history for Test-WithDB
 
+0.07    2015-09-27 (PERLANCAR)
+
+	- Switch to Mo.
+
+        - Observe TWDB_KEEP_TEMP_DBS to allow preventing automatic cleanup of
+          temp databases.
+
+        - Add methods: drop_dbs(), created_dbs().
+
+        - Add attribute: name_pattern to allow customizing random database name
+          pattern.
+
+	- [doc] Mention DBIx::TempDB.
+
+
 0.06    2015-08-18 (PERLANCAR)
 
 	- No functional changes.

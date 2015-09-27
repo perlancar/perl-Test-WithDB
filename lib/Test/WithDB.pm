@@ -225,6 +225,8 @@ sub DESTROY {
 1;
 # ABSTRACT: Framework for testing application using database
 
+=for Pod::Coverage ^(BUILD)$
+
 =head1 SYNOPSIS
 
 In your C<~/test-withdb.ini>:
