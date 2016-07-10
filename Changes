@@ -1,5 +1,13 @@
 Revision history for Test-WithDB
 
+0.08    2016-07-10 (PERLANCAR)
+
+        - Add DBD::SQLite as a dependency.
+
+        - Test schema migration during release, not author testing (I
+          practically never run tests with AUTHOR_TESTING=1).
+
+
 0.07    2015-09-27 (PERLANCAR)
 
 	- Switch to Mo.
