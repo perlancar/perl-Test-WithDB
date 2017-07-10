@@ -6,7 +6,7 @@ package Test::WithDB;
 use 5.010001;
 use strict;
 use warnings;
-use Log::Any::IfLOG '$log';
+use Log::ger;
 
 use DBI;
 use POSIX qw(strftime);
@@ -111,7 +111,7 @@ sub create_db {
 
     # XXX allow specifying more options
     Test::More::note("Creating test database '$dbname' ...");
-    $log->debug     ("Creating test database '$dbname' ...");
+    log_debug     ("Creating test database '$dbname' ...");
     if ($self->{_driver} eq 'Pg') {
         $self->{_admin_dbh}->do("CREATE DATABASE $dbname OWNER ".
                                     "$cfg->{user_user}");
@@ -140,7 +140,7 @@ sub create_db {
                                {RaiseError=>1});
         for my $st (ref($sql) eq 'ARRAY' ? @$sql : ($sql)) {
             Test::More::note("Initializing database by admin: $st ...");
-            $log->debug     ("Initializing database by admin: $st ...");
+            log_debug     ("Initializing database by admin: $st ...");
             $dbh->do($st);
         }
     }
@@ -152,7 +152,7 @@ sub create_db {
         last unless $sql;
         for my $st (ref($sql) eq 'ARRAY' ? @$sql : ($sql)) {
             Test::More::note("Initializing database by test user: $st ...");
-            $log->debug     ("Initializing database by test user: $st ...");
+            log_debug     ("Initializing database by test user: $st ...");
             $dbh->do($st);
         }
     }
@@ -171,7 +171,7 @@ sub drop_dbs {
         my $dbh = $self->{_dbhs}[$_];
         $dbh->disconnect;
         Test::More::note("Dropping test database '$dbname' ...");
-        $log->debug     ("Dropping test database '$dbname' ...");
+        log_debug     ("Dropping test database '$dbname' ...");
         if ($self->{_driver} eq 'SQLite') {
             my $dir = $cfg->{sqlite_db_dir} // '.';
             my $path = "$dir/$dbname";
@@ -202,14 +202,14 @@ sub done {
                 Test::More::diag(
                     "TWDB_KEEP_TEMP_DBS is set, not removing databases created during testing ".
                         "(".join(", ", @$dbs).")");
-                $log->info(
+                log_info(
                     "TWDB_KEEP_TEMP_DBS is set, not removing databases created during testing ".
                         "(".join(", ", @$dbs).")");
             } else {
                 Test::More::diag(
                     "Tests failing, not removing databases created during testing ".
                         "(".join(", ", @$dbs).")");
-                $log->error(
+                log_error(
                     "Tests failing, not removing databases created during testing ".
                         "(".join(", ", @$dbs).")");
             }
