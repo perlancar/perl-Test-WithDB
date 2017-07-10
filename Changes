@@ -1,3 +1,10 @@
+0.09    2017-07-10 (PERLANCAR)
+
+	- No functional changes.
+
+	- Replace Log::Any with Log::ger.
+
+
 0.08    2016-07-10 (PERLANCAR)
 
         - Add DBD::SQLite as a dependency.
