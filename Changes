@@ -1,17 +1,17 @@
-0.100   2018-05-10 (PERLANCAR)
+0.100   2018-05-10  Released-By: PERLANCAR
 
 	- Add attribute 'driver', consult TWDB_CONFIG_PROFILE_<driver>
 	  before TWDB_CONFIG_PROFILE if driver is set.
 
 
-0.09    2017-07-10 (PERLANCAR)
+0.09    2017-07-10  Released-By: PERLANCAR
 
 	- No functional changes.
 
 	- Replace Log::Any with Log::ger.
 
 
-0.08    2016-07-10 (PERLANCAR)
+0.08    2016-07-10  Released-By: PERLANCAR
 
         - Add DBD::SQLite as a dependency.
 
@@ -19,7 +19,7 @@
           practically never run tests with AUTHOR_TESTING=1).
 
 
-0.07    2015-09-27 (PERLANCAR)
+0.07    2015-09-27  Released-By: PERLANCAR
 
 	- Switch to Mo.
 
@@ -34,26 +34,26 @@
 	- [doc] Mention DBIx::TempDB.
 
 
-0.06    2015-08-18 (PERLANCAR)
+0.06    2015-08-18  Released-By: PERLANCAR
 
 	- No functional changes.
 
 	- Switch from Log::Any to Log::Any::IfLOG.
 
 
-0.05    2015-04-22 (PERLANCAR)
+0.05    2015-04-22  Released-By: PERLANCAR
 
 	- [Bugfix] Test::WithDB::SQLite: Remove extraneous 'dbname=...'
 	  parameter in DBI connection string which causes a garbage file
 	  'xxx' to be created.
 
 
-0.04    2015-04-22 (PERLANCAR)
+0.04    2015-04-22  Released-By: PERLANCAR
 
 	- Add class: Test::WithDB::SQLite.
 
 
-0.03    2014-09-18 (PERLANCAR)
+0.03    2014-09-18  Released-By: PERLANCAR
 
         - Add config: sqlite_db_dir.
 
@@ -70,7 +70,7 @@
         - Document known config vars.
 
 
-0.02    2014-09-12 (PERLANCAR)
+0.02    2014-09-12  Released-By: PERLANCAR
 
         - Add attribute: config_profile.
 
@@ -81,6 +81,6 @@
         - Add CLI script: drop-all-test-dbs.
 
 
-0.01    2014-09-12 (PERLANCAR)
+0.01    2014-09-12  Released-By: PERLANCAR
 
         - First release.
